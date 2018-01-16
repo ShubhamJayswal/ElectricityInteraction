@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<link rel="stylesheet" type="text/css" href="paperFunCss.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hello Bulma!</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+<script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+
+</head>
+<script type="text/javascript">
+
+var timer = null;
+
+// var running = false;
+function circuit() {
+//	if(running == false ){
+
+
+if(timer == null){
+		 // running = true;
+	  timer = setInterval(runAnimation, 10);
+	} else {
+
+		clearInterval(timer)
+		timer= null;
+		//running = false;
+	}
+	showGlow()
+}
+
+function runAnimation(){
+	    animate()
+}
+
+function reset(){
+	   clearInterval(timer)
+		 timer = null;
+     initialState()
+		 hideGlowingBulb()
+}
+
+
+function myFunction() {
+  hideElement()
+}
+
+
+
+
+</script>
+
+<script type="text/javascript" src="paper.js"></script>
+<script type="text/paperscript" canvas="myCanvas">
+
+var rectangle = new Rectangle(new Point(230, 450), new Point(650, 470));
+var cornerSize = new Size(5, 5);
+var newRect = new Path.RoundRectangle(rectangle, cornerSize);
+newRect.fillColor = '#7B68EE';
+
+var text = new PointText(new Point(420, 465));
+text.justification = 'center';
+text.fillColor = '#fff';
+//text.content = 'The contents of the point text';
+
+newRect.visible = false;
+text.visible = false;
+var switchState = false;
+
+function showMessage(event)
+ {
+ 	      newRect.visible = true;
+ 	      text.visible = true;
+ }
+
+
+var clearCanvas = false;
+
+//drag and drop_zone
+var hitOptions = {
+	segments: true,
+	stroke: true,
+	fill: true,
+	tolerance: 5
+};
+
+var resistance=0;
+var totalResistance = 0;
+var dragging=0;
+var segment, path;
+var movePath = false;
+
+var checkVar = 10;
+
+function onMouseDown(event){
+
+	segment = path = null;
+	//console.log('hitOptions', hitOptions)
+	var hitResult = project.hitTest(event.point);
+	if (!hitResult)
+		return;
+
+	if (hitResult){
+		if(hitResult.item.id==12 || hitResult.item.id == 13
+    || hitResult.item.id ==10 || hitResult.item.id== 11 || hitResult.item.id ==14
+
+		)
+		{
+		path = hitResult.item;
+
+		if (hitResult.type == 'segment') {
+			segment = hitResult.segment;
+		} else if (hitResult.type == 'stroke') {
+			var location = hitResult.location;
+			segment = path.insert(location.index + 1, event.point);
+			path.smooth();
+		}
+
+  //console.log('hitResult.type', hitResult.type);
+	movePath = hitResult.type == 'fill';
+	if (movePath)
+		project.activeLayer.addChild(hitResult.item);
+	}
+}
+}
+
+function onMouseMove(event) {
+
+	project.activeLayer.selected = false;
+	console.log('event.item', event.item)
+	console.log('item id', event.item.id)
+	if (event.item.id==14 || event.item.id == 12 || event.item.id ==10 || event.item.id ==11
+	|| event.item.id ==13)
+	       {
+			// console.log('event.item.className', event.item.className)
+         event.item.selected = true;
+			 }
+			// console.log("myRect.bounds", myRect.bounds);
+			// console.log("resistor.bounds", resistor.bounds);
+
+
+
+
+			 for(var i=0;i<dropPoints.length;i++)
+			    {
+
+
+	     if (dropPoints[i].bounds.contains(resistor.bounds) ||
+				  dropPoints[i].bounds.contains(resistor2.bounds)
+					|| dropPoints[i].bounds.contains(newWire.bounds)
+				   || dropPoints[i].bounds.contains(newWireColor.bounds)
+
+
+				  )
+
+            {
+
+
+	 			    dropPoints[i].fillColor = '#7D6CF3';
+	 		   }
+			    else{
+				  dropPoints[i].fillColor = '#EEF9E6';
+			   }
+
+			 }
+
+
+
+
+
+
+    // contains both resistors
+		 if(  (myRect.bounds.contains(resistor.bounds)||myRect.bounds.contains(resistor2.bounds))
+		    && (myRect2.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor2.bounds)))
+		    {
+			  resistance = 55;
+				//console.log("inside and condition and combined resistance="+resistance)
+				//project.layers.push(text);
+				myRect.fillColor = '#7D6CF3';
+				myRect2.fillColor ='#7D6CF3';
+				myRect3.fillColor ='red';
+				newRect.visible = false;
+				 text.visible = false;
+				 currentBall.visible =true;
+				 text.content = 'Congratulations! Circuit contains both resistors and is complete.';
+				 showMessage(event);
+				 for(var i=0;i<dropPoints.length;i++)
+						{
+
+
+				 if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+							{
+
+              if(glow!=false && switchState!=false){
+							dropPoints[i].fillColor = 'white';
+							lightBulb.visible = false;
+							glowingBulb.visible = true;
+						}
+
+					 }
+						else{
+						dropPoints[i].fillColor = '#EEF9E6';
+					 }
+				 }
+
+
+		    }
+		 //contains first resistor and nothing else
+     else if((myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+        && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+				&& !(myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+			  && !(myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds)))
+				{
+					resistance = 25;
+					console.log("contains first resistor and nothing else and the circuit is incomplete")
+					text.content = 'Note: Circuit contains only one resistor is incomplete. Connect a wire or a resistor.';
+          showMessage(event);
+					lightBulb.visible = true;
+					glowingBulb.visible = false;
+					currentBall.visible = false;
+				}
+        // contains second resistor and nothing else
+				else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+	         && (myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+	 				&& !(myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+	 			  && !(myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds)))
+	 				{
+						newRect.visible = false;
+						 text.visible = false;
+						 		currentBall.visible = false;
+	 					resistance = 25;
+						text.content = 'Note: Circuit contains only one resistor and is incomplete!';
+	          showMessage(event);
+	 					console.log("contains second resistor and nothing else")
+						lightBulb.visible = true;
+						glowingBulb.visible = false;
+
+	 				}
+			// contains first resistor and first wire: circuit complete
+				else if((myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+	         && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+	 				&& (myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+					&& !(myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+				)
+	 				{
+						newRect.visible = false;
+						text.visible = false;
+	 					resistance = 25;
+	 					console.log("contains first resistor and first wire: circuit complete and circuit is complete. Resistance:",
+						resistance)
+						text.content = 'Congratulations! Circuit contains a resitor and a wire and is complete.';
+	          showMessage(event);
+								currentBall.visible = true;
+								myRect.fillColor = '#7D6CF3';
+								myRect2.fillColor ='#7D6CF3';
+						for(var i=0;i<dropPoints.length;i++)
+							 {
+
+
+						if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+								 {
+
+                 if(glow!=false) {
+								 dropPoints[i].fillColor = 'white';
+								 lightBulb.visible = false;
+								 glowingBulb.visible = true;
+              }
+							}
+							 else{
+							 dropPoints[i].fillColor = '#EEF9E6';
+							}
+						}
+
+	 				}
+        // contains first resistor and second wire
+					else if((myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+		         && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+		 				&& !(myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+						&& (myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+					)
+		 				{
+							newRect.visible = false;
+						  text.visible = false;
+		 					resistance = 25;
+		 					console.log("contains first resistor and second wire: circuit complete and circuit is complete. Resistance:",
+							resistance)
+							text.content = 'Congratulations! Circuit contains a resitor and a wire and is complete.';
+		          showMessage(event);
+									currentBall.visible = true;
+									myRect.fillColor = '#7D6CF3';
+									myRect2.fillColor ='#7D6CF3';
+							for(var i=0;i<dropPoints.length;i++)
+								 {
+
+
+							if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+									 {
+                         if(glow!=false){
+
+									 dropPoints[i].fillColor = 'white';
+									 lightBulb.visible = false;
+									 glowingBulb.visible = true;
+									// dropPoints[i].strokeColor = 'blue';
+									 //myRect3.visible = false;
+								}}
+								 else{
+								 dropPoints[i].fillColor = '#EEF9E6';
+								}
+							}
+
+		 				}
+           // conatains second resistor, first wire
+						else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+			         && (myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+			 				&& (myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+							&& !(myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+						)
+			 				{
+								newRect.visible = false;
+							  text.visible = false;
+										currentBall.visible = true;
+			 					console.log("conatains second resistor, first wire, circuit complete. Resistance:",
+								30)
+								text.content = 'Congratulations! Circuit contains a resitor and a wire and is complete.';
+			          showMessage(event);
+								myRect.fillColor = '#7D6CF3';
+								myRect2.fillColor ='#7D6CF3';
+								for(var i=0;i<dropPoints.length;i++)
+									 {
+
+
+								if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+										 {
+
+                     if(glow!=false){
+										 dropPoints[i].fillColor = 'white';
+										 lightBulb.visible = false;
+										 glowingBulb.visible = true;
+									 }
+									}
+									 else{
+									 dropPoints[i].fillColor = '#EEF9E6';
+									}
+								}
+
+			 				}
+            // contains second resistor, second wire
+							else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+				         && (myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+				 				&& !(myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+								&& (myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+							)
+				 				{
+									newRect.visible = false;
+									 text.visible = false;
+				 					console.log("contains second resistor, second wire, circuit complete. Resistance:",
+									30)
+									text.content = 'Congratulations! Circuit contains a resitor and a wire and is complete.';
+				          showMessage(event);
+											currentBall.visible = true;
+											myRect.fillColor = '#7D6CF3';
+											myRect2.fillColor ='#7D6CF3';
+									for(var i=0;i<dropPoints.length;i++)
+										 {
+
+
+									if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+											 {
+
+                        if(glow!=false){
+											 dropPoints[i].fillColor = 'white';
+											 lightBulb.visible = false;
+											 glowingBulb.visible = true;
+										 }
+										}
+										 else{
+										 dropPoints[i].fillColor = '#EEF9E6';
+										}
+									}
+
+				 				}
+
+            // first wire and nothing else.
+						else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+							 && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+							&& (myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+							&& !(myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+						)
+							{
+								newRect.visible = false;
+								 text.visible = false;
+								console.log("first wire and nothing else, circuit incomplete")
+								text.content = 'Note: Ciruit contains only one wire and is incomplete! Connect a wire or a resistor.';
+			          showMessage(event);
+								lightBulb.visible = true;
+								glowingBulb.visible = false;
+										currentBall.visible = false;
+
+							}
+
+					// second wire nothing else
+					else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+						 && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+						&& !(myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+						&& (myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+					)
+						{
+							newRect.visible = false;
+							text.visible = false;
+							console.log("second wire nothing else. Circuit incomplete")
+							text.content = 'Note: Ciruit contains only one wire and is incomplete! Connect a wire or a resistor.';
+							showMessage(event);
+							lightBulb.visible = true;
+							glowingBulb.visible = false;
+									currentBall.visible = false;
+						}
+          // both wires, nothing else
+
+					else if(!(myRect.bounds.contains(resistor.bounds)||myRect2.bounds.contains(resistor.bounds))
+						 && !(myRect.bounds.contains(resistor2.bounds)||myRect2.bounds.contains(resistor2.bounds))
+						&& (myRect.bounds.contains(newWire.bounds) || myRect2.bounds.contains(newWire.bounds))
+						&& (myRect.bounds.contains(newWireColor.bounds) || myRect2.bounds.contains(newWireColor.bounds))
+					)
+						{
+							newRect.visible = false;
+							 text.visible = false;
+							 myRect.fillColor = '#7D6CF3';
+							 myRect2.fillColor ='#7D6CF3';
+							console.log("both wires, circuit complete. O resistance"
+						)
+						text.content = 'Congratulations! Circuit contains both wires and is complete.';
+						showMessage(event);
+								currentBall.visible = true;
+
+						for(var i=0;i<dropPoints.length;i++)
+							 {
+
+
+						if (dropPoints[i].bounds.contains(lightBulb.bounds))
+
+								 {
+                if(glow!=false && switchState!=false)
+                   {
+								 dropPoints[i].fillColor = 'red';
+								 lightBulb.visible = false;
+								 glowingBulb.visible = true;
+							 }
+
+							}
+							 else{
+							 dropPoints[i].fillColor = '#EEF9E6';
+							}
+						}
+
+						}
+					else{
+						newRect.visible = false;
+						text.visible = false;
+
+					}
+
+
+
+}
+
+
+function onMouseDrag(event) {
+
+			if (segment) {
+			//	console.log('segment', segment)
+				segment.point += event.delta;
+				path.smooth();
+			}
+			else if (path) {
+				path.position += event.delta;
+			}
+
+
+		}
+
+//drag and drop over
+
+var wire = new Raster('wire4.png');
+
+wire.position = view.center;
+
+var battery = new Raster('paint2d.png',400, 390);
+
+battery.scale(0.7);
+
+var currentBall = new Raster('currentBall2.png', 500, 500);
+
+currentBall.visible = false;
+
+var dropPoints = []
+
+// declared the first rectanglular box
+var rectangle = new Rectangle(495, 50,70, 30);
+
+//console.log("rectangle1 width", rectangle.point);
+var myRect = new Path.Rectangle(rectangle);
+myRect.fillColor='#EEF9E6';
+
+myRect.strokeColor = 'blue';
+
+dropPoints.push(myRect)
+
+
+// declared the second rectangle
+var rectangle2 = new Rectangle(260, 50,70, 30);
+
+//console.log("rectangle2 width", rectangle2.point);
+
+var myRect2 = new Path.Rectangle(rectangle2);
+myRect2.fillColor='#EEF9E6';
+myRect2.strokeColor = 'blue';
+
+dropPoints.push(myRect2)
+
+// declared 3rd rectangle
+var rectangle3 = new Rectangle(395, 0, 60, 60);
+
+//console.log("rectangle2 width", rectangle2.point);
+
+var myRect3 = new Path.Rectangle(rectangle3);
+myRect3.fillColor='#EEF9E6';
+myRect3.strokeColor = 'blue';
+
+dropPoints.push(myRect3)
+
+
+// declared the resistor
+
+var resistor = new Raster('resistor.jpg', 40, 400);
+
+var resistor2 = new Raster('resistor2.png', 40, 450);
+
+
+var newWire = new Raster('smallWire.png', 40, 350);
+
+var newWireColor = new Raster('newWireColor.png', 40, 300);
+
+newWireColor.scale(0.95)
+
+newWire.scale(0.95)
+
+dropPoints.push(newWire)
+
+
+var lightBulb = new Raster('lightBulb.png', 40, 250);
+//var lightBulbGlowing = new Raster('lightBulbGlowing.png', 40, 200);
+//var newImage = new DragImage('paint2d.png', 200, 300);
+//lightBulbGlowing.scale(1.06)
+
+//console.log("is Rectangle empty", rectangle.isEmpty())
+var glowingBulb = new Raster('glowingBulb.png', 425,  30);
+glowingBulb.visible = false;
+
+var t=0;
+var m=0;
+var n=0;
+var k=0;
+var p=0;
+var glow = true;
+
+hideGlowingBulb = function hideGlow()
+{
+  glowingBulb.visible = false;
+	lightBulb.visible = true;
+	myRect3.fillcolor ='#EEF9E6';
+	glow = false;
+	switchState =false;
+
+}
+
+showGlow = function showGlowingBulb()
+{
+	glow = true;
+}
+
+
+
+
+animate = function onFrame(event) {
+ //console.log("event", event)
+ //console.log("run  game", runGame)
+	// Each frame, rotate the path by 3 degrees:
+   switchState = true;
+
+	// if(runGame) {
+	// 	do the thing
+	// }
+	if(currentBall.position.x<708 && currentBall.position.y>200 && t!=1)
+		{
+      //alert("currentBall.position.x<708 && currentBall.position.y>200");
+			currentBall.position.x+= 2;
+			if(currentBall.position.x>=684)
+			{
+        //alert("currentBall.position.x>684");
+				currentBall.position.x+=2;
+				currentBall.position.y-=2;
+			}
+
+      if(!(currentBall.position.x<708 && currentBall.position.y>200))
+          t=0;
+
+		}
+		if(currentBall.position.x>=708 && currentBall.position.y>198)
+		 {
+       //alert("currentBall.position.x>=708 && currentBall.position.y>200");
+			 currentBall.position.y-=2;
+		 }
+		 if(currentBall.position.y<=198 && currentBall.position.y>170 &&  currentBall.position.x>260)
+		 {
+    //  alert("currentBall.position.y<=200 && currentBall.position.y>170");
+			 currentBall.position.x-=2;
+			 currentBall.position.y-=2;
+		 }
+     // it was 260
+		 if(currentBall.position.y<=170 && currentBall.position.x>246)
+		   {
+				// alert("currentBall.position.y<=170 && currentBall.position.x>260");
+		     currentBall.position.x-=2;
+         k=0;
+			 }
+
+		 if(currentBall.position.x<=246 && currentBall.position.x>=236 && k!=1)
+		    {
+				//alert("currentBall.position.x<=260 && currentBall.position.x>=236");
+          if(currentBall.position.x>=236)
+					   m=1;
+
+					currentBall.position.x-=1;
+					currentBall.position.y+=1
+					;
+					t=1;
+          if(!(currentBall.position.x<=246 && currentBall.position.x>=236))
+             k=0;
+
+
+				}
+      // it was 476 everywhere
+			if(m==1 && currentBall.position.y<=472)
+			{
+        //alert("m==1 && currentBall.position.y<=476");
+				currentBall.position.y+=2;
+				if(currentBall.position.y>=472)
+				   n=1;
+        if(!(m==1 && currentBall.position.y<=472))
+           m=0;
+			}
+			if(n==1 && currentBall.position.x<=259)
+			  {
+          //alert("inside n and the value of x coordinate is"+currentBall.position.x);
+
+          if(currentBall.position.x>=259)
+					    p=1;
+					currentBall.position.x+=2;
+					currentBall.position.y+=2;
+
+					k=1;
+          if(!(n==1 && currentBall.position.x<=259))
+               n=0;
+				}
+        // it was for 684
+				if(p==1 && currentBall.position.x<684)
+				{
+
+				   currentBall.position.x+=2;
+           // it didn't have the equal to sign currentBall.position.x<=684.
+           if(!(p==1 && currentBall.position.x<684))
+            {
+              //  alert("p=0"+"and current x is "+currentBall.position.x+"y is"+currentBall.position.y+"t is "+t);
+               t=0;
+               p=0;
+             }
+
+
+
+        }
+	 }
+
+
+	 initialState = function firstState()
+	 {
+		 resistor.position.x= 40;
+		 resistor.position.y= 400;
+		 currentBall.position.x= 500;
+		 currentBall.position.y= 500;
+	 }
+
+
+</script>
+
+<body>
+
+	<button type="button" onclick="reset()" id="switchOff" ><img src="SwitchOff.png" /></button>
+  <button type="button" onclick="circuit()" id="switchOn"><img src="SwitchOn.jpeg" /></button>
+
+	<nav class="navbar is-light" role="navigation" aria-label="main navigation">
+			<div class="navbar-brand">
+				<a class="navbar-item" href="https://bulma.io">
+					<img src="Education.png"  width="112" height="28">
+				</a>
+
+			</div>
+
+			<div class="field">
+				<div class="control">
+					<input class="input is-primary" type="text" placeholder="Search" style="margin-top: 10px; ">
+				</div>
+			</div>
+
+			<div class="navbar-item has-dropdown is-hoverable">
+			<a class="navbar-link">
+				Year 11
+			</a>
+
+			<div class="navbar-dropdown">
+				<a class="navbar-item">
+					Overview
+				</a>
+				<a class="navbar-item">
+					Elements
+				</a>
+				<a class="navbar-item">
+					Components
+				</a>
+				<hr class="navbar-divider">
+				<div class="navbar-item">
+					Version 0.6.2
+				</div>
+			</div>
+		</div>
+
+		<div class="navbar-item has-dropdown is-hoverable">
+			<a class="navbar-link">
+				Year12
+			</a>
+
+			<div class="navbar-dropdown">
+				<a class="navbar-item">
+					Overview
+				</a>
+				<a class="navbar-item">
+					Elements
+				</a>
+				<a class="navbar-item">
+					Components
+				</a>
+				<hr class="navbar-divider">
+				<div class="navbar-item">
+					Version 0.6.2
+				</div>
+			</div>
+		</div>
+		<div class="navbar-item has-dropdown is-hoverable">
+			<a class="navbar-link">
+				MiddleSchool
+			</a>
+
+			<div class="navbar-dropdown">
+				<a class="navbar-item">
+					Overview
+				</a>
+				<a class="navbar-item">
+					Elements
+				</a>
+				<a class="navbar-item">
+					Components
+				</a>
+				<hr class="navbar-divider">
+				<div class="navbar-item">
+					Version 0.6.2
+				</div>
+			</div>
+		</div>
+		<div class="navbar-end">
+			<div class="navbar-item">
+				<div class="field is-grouped">
+					<p class="control">
+						<a class="bd-tw-button button" data-social-network="Twitter" data-social-action="tweet" data-social-target="http://localhost:4000" target="_blank" href="https://twitter.com/intent/tweet?text=Bulma: a modern CSS framework based on Flexbox&amp;hashtags=bulmaio&amp;url=http://localhost:4000&amp;via=jgthms">
+							<span class="icon">
+								<i class="fab fa-twitter"></i>
+							</span>
+							<span>
+								Tweet
+							</span>
+						</a>
+					</p>
+					<p class="control">
+						<a class="button is-primary" href="#">
+							<span class="icon">
+							<i class="fa fa-sign-in" ></i>
+							</span>
+							<span>Sign In</span>
+						</a>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		</nav>
+
+
+
+		<section class="hero is-info is-medium">
+			 <div class="hero-body">
+				 <h1 class="title" >
+						Electric Circuit
+				 </h1>
+				 <p class="subtitle">
+					 An interactive animation for electric Circuit.
+				 </p>
+				 <nav class="breadcrumb has-bullet-separator is-primary" aria-label="breadcrumbs" >
+				</nav>
+			 </div>
+		 </section>
+  <!-- <nav class="navbar is-1 is-light " role="navigation" aria-label="main navigation"> Electric Circuit </nav> -->
+	<hr id="hrOne">
+	<canvas id="myCanvas" height="500px" width="800px" style="background:url('woodenBackground3.jpg')"></canvas>
+
+			<button type="button" onclick="reset()" id="switchOff" ><img src="SwitchOff.png" /></button>
+		  <button type="button" onclick="circuit()" id="switchOn"><img src="SwitchOn.jpeg" /></button>
+
+<hr id="hrTwo">
+
+<article class="media">
+	<figure class="media-left">
+		<p class="image is-64x64">
+			<img src="https://bulma.io/images/placeholders/128x128.png">
+		</p>
+	</figure>
+	<div class="media-content">
+		<div class="content">
+			<p>
+				<strong>John Smith</strong> <small>@johnsmith</small> <small>31m</small>
+				<br>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.
+			</p>
+		</div>
+		<nav class="level is-mobile">
+			<div class="level-left">
+				<a class="level-item">
+					<span class="icon is-small"><i class="fas fa-reply"></i></span>
+				</a>
+				<a class="level-item">
+					<span class="icon is-small"><i class="fas fa-retweet"></i></span>
+				</a>
+				<a class="level-item">
+					<span class="icon is-small"><i class="fas fa-heart"></i></span>
+				</a>
+			</div>
+		</nav>
+	</div>
+	<div class="media-right">
+		<button class="delete"></button>
+	</div>
+</article>
+<hr id="hrThree">
+<article class="media">
+  <figure class="media-left">
+    <p class="image is-64x64">
+      <img src="https://bulma.io/images/placeholders/128x128.png">
+    </p>
+  </figure>
+  <div class="media-content">
+    <div class="field">
+      <p class="control">
+        <textarea class="textarea" placeholder="Add a comment..."></textarea>
+      </p>
+    </div>
+    <nav class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <a class="button is-info">Submit</a>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <label class="checkbox">
+            <input type="checkbox"> Press enter to submit
+          </label>
+        </div>
+      </div>
+    </nav>
+  </div>
+</article>
+
+<hr id="hrFour">
+			<section class="hero is-success is-medium">
+		 	 <div class="hero-body">
+		 		 <h1 class="title">
+		 				Description
+		 		 </h1>
+		 		 <p class="subtitle">
+		 			 This electric ciruit shows...
+		 		 </p>
+		 		 <nav class="breadcrumb has-bullet-separator is-primary" aria-label="breadcrumbs" >
+		 		</nav>
+		 	 </div>
+		  </section>
+
+
+
+
+
+			<section class="hero is-dark is-medium">
+				<div class="hero-body">
+					<div class="container">
+
+						<div class="columns content" id="footerText">
+
+									 <div class="column is-one-third">
+							<p class="Footer text is-size-5" id ="paragraphFooter">
+										 Our mission is to facilitate education </br>
+										 with the help of animations. It's free and </br>
+										 open to all!
+							</p>
+
+
+
+
+							<p id="Info">
+						<strong>Eduphillia</strong> is developed by <a href="https://www.csiro.com.au">CSIRO</a>. The source code is licensed
+						<a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+						is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+						 </p>
+					</div>
+
+					<div class="column is-one-third"><p class="Footer text is-size-5" id ="paragraphFooter2">
+								About
+					</p></div>
+					<div class="column is-one-third"><p class="Footer text is-size-5" id ="paragraphFooter3">
+								Contact
+					</p></div>
+
+
+
+					</div>
+
+					</div>
+				</div>
+			</section>
+
+
+
+</body>
+</html>
